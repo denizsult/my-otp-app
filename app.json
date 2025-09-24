@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "my-otp-app",
-    "slug": "my-otp-app",
+    "slug": "task",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,6 +25,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "62ccb81f-e546-4d2c-b099-d5c9deaebf67"
+      }
+    },
+    "owner": "deniden"
   }
 }
