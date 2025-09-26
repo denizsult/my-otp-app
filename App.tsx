@@ -1,58 +1,48 @@
-import React, { useState } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { GluestackUIProvider } from '@gluestack-ui/themed';
-import { config } from './gluestack-ui.config';
-import PhoneScreen from './src/screens/PhoneScreen';
-import OTPScreen from './src/screens/OTPScreen';
-import SuccessScreen from './src/screens/SuccessScreen';
-import { useOTPStore } from './src/stores/otpStore';
-import '@/global.css';
-
-type Screen = 'phone' | 'otp' | 'success';
+import React, { useState, useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { useOTPStore } from "./src/stores/otpStore";
+import KeyboardWrapper from "./src/components/KeyboardWrapper";
+import AppNavigator from "./src/navigation/AppNavigator";
+import { Center } from "@/components/ui/center";
+import { RenderIf } from "./src/components/RenderIf";
+import { ActivityIndicator } from "react-native";
+import { ToastContainer } from "./src/components/CustomToast";
+import "@/global.css";
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('phone');
-  const { reset, phoneNumber } = useOTPStore();
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  const handleSendCode = () => {
-    setCurrentScreen('otp');
-  };
+  // Wait for Zustand store to hydrate from AsyncStorage
+  useEffect(() => {
+    const unsubscribe = useOTPStore.persist.onFinishHydration(() => {
+      setIsHydrated(true);
+    });
 
-  const handleVerifySuccess = () => {
-    setCurrentScreen('success');
-  };
-
-  const handleBackToPhone = () => {
-    reset();
-    setCurrentScreen('phone');
-  };
-
-  const handleStartOver = () => {
-    reset();
-    setCurrentScreen('phone');
-  };
-
-  const renderScreen = () => {
-    switch (currentScreen) {
-      case 'phone':
-        return <PhoneScreen onSendCode={handleSendCode} />;
-      case 'otp':
-        return (
-          <OTPScreen 
-            onVerifySuccess={handleVerifySuccess}
-            onBack={handleBackToPhone}
-          />
-        );
-      case 'success':
-        return <SuccessScreen phoneNumber={phoneNumber} onStartOver={handleStartOver} />;
-      default:
-        return <PhoneScreen onSendCode={handleSendCode} />;
+    // If already hydrated, set immediately
+    if (useOTPStore.persist.hasHydrated()) {
+      setIsHydrated(true);
     }
-  };
 
+    return unsubscribe;
+  }, []);
+
+  
   return (
-    <GluestackUIProvider config={config}>
-      {renderScreen()}
+    <GluestackUIProvider>
+      <RenderIf
+        condition={isHydrated}
+        fallback={
+          <Center className="flex-1">
+            <ActivityIndicator size="large" color="#0000ff" />
+          </Center>
+        }
+      >
+        <KeyboardWrapper>
+          <AppNavigator />
+        </KeyboardWrapper>
+      </RenderIf>
+      <ToastContainer />
       <StatusBar style="auto" />
     </GluestackUIProvider>
   );

@@ -1,7 +1,10 @@
 import React from "react";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 import { useOTPStore } from "../stores/otpStore";
-import vonageService from "../services/vonageService";
+
+import PhoneInput from "../components/PhoneInput";
 import { Box } from "@/components/ui/box";
 import { Center } from "@/components/ui/center";
 import { Card } from "@/components/ui/card";
@@ -9,78 +12,65 @@ import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack/index";
 import { Text } from "@/components/ui/text/index";
 import { Heading } from "@/components/ui/heading/index";
-import { Input, InputField } from "@/components/ui/input/index";
-import { Button, ButtonText } from "@/components/ui/button/index";
-import { Alert, AlertText, AlertIcon } from "@/components/ui/alert/index";
+import { Button, ButtonText } from "@/components/ui/button";
+import { useCustomToast } from "../hooks/useCustomToast";
 import { Spinner } from "@/components/ui/spinner/index";
+import { RenderIf } from "../components/RenderIf";
+import { RootStackParamList } from "../navigation/AppNavigator";
+import { sendOTP } from "../api";
+import { ErrorCode } from "../types";
 
-interface PhoneScreenProps {
-  onSendCode: () => void;
-}
+type PhoneScreenNavigationProp = StackNavigationProp<
+  RootStackParamList,
+  "Phone"
+>;
 
-export default function PhoneScreen({ onSendCode }: PhoneScreenProps) {
-  // Get state from Zustand store
+
+const ERROR_MESSAGES: Record<ErrorCode, string> = {
+  "10": "This phone number has already been used recently. Please wait before requesting another code.",
+  "15": "Verification code was already sent to this number. Please check your messages or wait before requesting another.",
+  "17": "This phone number is not valid. Please check and try again.",
+  "19": "Too many verification attempts. Please wait before trying again.",
+};
+
+const getErrorMessage = (status: string, fallbackMessage?: string): string => {
+  return ERROR_MESSAGES[status as ErrorCode] || fallbackMessage || "Failed to send verification code";
+};  
+
+export default function PhoneScreen() {
+  const navigation = useNavigation<PhoneScreenNavigationProp>();
+  const toast = useCustomToast();
+
   const {
     phoneNumber,
     isSendingOTP,
-    error,
-    setPhoneNumber,
+    getFullPhoneNumber,
     setSendingOTP,
-    setError,
     setRequestId,
-    clearError,
   } = useOTPStore();
 
-  const formatPhoneNumber = (value: string) => {
-    // Remove all non-digits
-    const digits = value.replace(/\D/g, "");
-    return digits;
-
-    /*  // Format as +1 (XXX) XXX-XXXX for US numbers
-    if (digits.length <= 1) return digits;
-    if (digits.length <= 4) return `+90 (${digits.slice(1)}`;
-    if (digits.length <= 7) return `+90 (${digits.slice(1, 4)}) ${digits.slice(4)}`;
-    return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 11)}`; */
-  };
-
-  const handlePhoneChange = (value: string) => {
-    const formatted = formatPhoneNumber(value);
-    setPhoneNumber(formatted);
-    clearError();
-  };
-
-  const validatePhoneNumber = (phone: string) => {
-    const digits = phone.replace(/\D/g, "");
-    return digits.startsWith("9");
-  };
-
   const handleSendCode = async () => {
-    if (!phoneNumber) {
-      setError("Please enter your phone number");
-      return;
-    }
-
-    if (!validatePhoneNumber(phoneNumber)) {
-      setError("Please enter a valid US phone number");
-      return;
-    }
-
     setSendingOTP(true);
-    clearError();
 
     try {
-      const result = await vonageService.sendOTP(
-        phoneNumber.replace(/\D/g, "")
-      );
+      const fullPhoneNumber = getFullPhoneNumber();
+      const result = await sendOTP(fullPhoneNumber.replace(/\D/g, ""));
 
       if (result.status === "0") {
         setRequestId(result.request_id);
-        onSendCode();
+        navigation.navigate("OTP");
+        toast.success("Code Sent", "A new verification code has been sent to your phone.");
       } else {
-        setError(result.error_text || "Failed to send verification code");
+        const errorMessage = getErrorMessage(result.status, result.error_text);
+        toast.error("Error", errorMessage);
       }
     } catch (err: any) {
-      setError(err.message || "Network error. Please try again.");
+      const errorStatus = err.response?.data?.status;
+      const errorMessage = errorStatus 
+        ? getErrorMessage(errorStatus, err.message)
+        : err.message || "Network error. Please try again.";
+
+      toast.error("Network Error", errorMessage);
     } finally {
       setSendingOTP(false);
     }
@@ -97,9 +87,6 @@ export default function PhoneScreen({ onSendCode }: PhoneScreenProps) {
           <VStack space="lg">
             {/* Header Section */}
             <VStack space="md" className="items-center">
-              <Box className="bg-primary-500 p-4 rounded-full">
-                <Text className="text-white text-2xl font-bold">📱</Text>
-              </Box>
               <Heading size="xl" className="text-typography-900 text-center">
                 Enter Your Phone Number
               </Heading>
@@ -110,46 +97,37 @@ export default function PhoneScreen({ onSendCode }: PhoneScreenProps) {
 
             {/* Content Section */}
             <VStack space="lg">
-              {error && (
-                <Alert action="error" variant="solid">
-                  <AlertIcon />
-                  <AlertText>{error}</AlertText>
-                </Alert>
-              )}
-
               <VStack space="sm">
                 <Text className="text-typography-700 text-sm font-medium">
                   Phone Number
                 </Text>
-                <Input>
-                  <InputField
-                    placeholder="+90 (555) 123-4567"
-                    value={phoneNumber}
-                    onChangeText={handlePhoneChange}
-                    keyboardType="phone-pad"
-                    autoComplete="tel"
-                  />
-                </Input>
-                <Text className="text-typography-500 text-xs">
-                  Enter your Turkish phone number with country code
-                </Text>
+                <PhoneInput
+                  placeholder="Enter phone number"
+                  disabled={isSendingOTP}
+                />
               </VStack>
 
               <Button
                 size="lg"
-                action="primary"
+                action=""
                 variant="solid"
+                className="!bg-gray-200 border-gray-200 rounded-lg"
                 onPress={handleSendCode}
                 disabled={!phoneNumber || isSendingOTP}
               >
-                {isSendingOTP ? (
+                <RenderIf
+                  condition={isSendingOTP}
+                  fallback={
+                    <ButtonText className="text-black">
+                      SEND VERIFICATION CODE
+                    </ButtonText>
+                  }
+                >
                   <HStack space="sm" className="items-center">
                     <Spinner size="small" color="white" />
                     <ButtonText>Sending Code...</ButtonText>
                   </HStack>
-                ) : (
-                  <ButtonText>SEND VERIFICATION CODE</ButtonText>
-                )}
+                </RenderIf>
               </Button>
 
               <VStack space="xs" className="items-center">

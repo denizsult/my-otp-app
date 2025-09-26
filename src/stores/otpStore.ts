@@ -1,87 +1,72 @@
-import { create } from 'zustand';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { OTPState } from "../types";
 
-interface OTPState {
-  // Phone number state
-  phoneNumber: string;
-  setPhoneNumber: (phone: string) => void;
-  
-  // OTP code state
-  otpCode: string[];
-  setOtpCode: (code: string[]) => void;
-  updateOtpDigit: (index: number, value: string) => void;
-  clearOtpCode: () => void;
-  
-  // Request ID from Vonage
-  requestId: string;
-  setRequestId: (id: string) => void;
-  
-  // Loading states
-  isSendingOTP: boolean;
-  isVerifyingOTP: boolean;
-  setSendingOTP: (loading: boolean) => void;
-  setVerifyingOTP: (loading: boolean) => void;
-  
-  // Error handling
-  error: string;
-  setError: (error: string) => void;
-  clearError: () => void;
-  
-  // Timer state
-  timeLeft: number;
-  setTimeLeft: (time: number) => void;
-  canResend: boolean;
-  setCanResend: (can: boolean) => void;
-  
-  // Reset all state
-  reset: () => void;
-}
+export const useOTPStore = create<OTPState>()(
+  persist(
+    (set, get) => ({
+      // Initial state
+      phoneNumber: "",
+      countryCode: "+90",
+      otpCode: ["", "", "", "", "", ""],
+      requestId: "",
+      isSendingOTP: false,
+      isVerifyingOTP: false,
+      timeLeft: 300, // 5 minutes
+      canResend: false,
 
-export const useOTPStore = create<OTPState>((set, get) => ({
-  // Initial state
-  phoneNumber: '',
-  otpCode: ['', '', '', '', '', ''],
-  requestId: '',
-  isSendingOTP: false,
-  isVerifyingOTP: false,
-  error: '',
-  timeLeft: 300, // 5 minutes
-  canResend: false,
-  
-  // Actions
-  setPhoneNumber: (phone) => set({ phoneNumber: phone }),
-  
-  setOtpCode: (code) => set({ otpCode: code }),
-  
-  updateOtpDigit: (index, value) => {
-    const newCode = [...get().otpCode];
-    newCode[index] = value;
-    set({ otpCode: newCode });
-  },
-  
-  clearOtpCode: () => set({ otpCode: ['', '', '', '', '', ''] }),
-  
-  setRequestId: (id) => set({ requestId: id }),
-  
-  setSendingOTP: (loading) => set({ isSendingOTP: loading }),
-  
-  setVerifyingOTP: (loading) => set({ isVerifyingOTP: loading }),
-  
-  setError: (error) => set({ error }),
-  
-  clearError: () => set({ error: '' }),
-  
-  setTimeLeft: (time) => set({ timeLeft: time }),
-  
-  setCanResend: (can) => set({ canResend: can }),
-  
-  reset: () => set({
-    phoneNumber: '',
-    otpCode: ['', '', '', '', '', ''],
-    requestId: '',
-    isSendingOTP: false,
-    isVerifyingOTP: false,
-    error: '',
-    timeLeft: 300,
-    canResend: false,
-  }),
-}));
+      // Actions
+      setPhoneNumber: (phone) => set({ phoneNumber: phone }),
+      setCountryCode: (code) => set({ countryCode: code }),
+      getFullPhoneNumber: () => {
+        const state = get();
+        return `${state.countryCode}${state.phoneNumber}`;
+      },
+
+      setOtpCode: (code) => set({ otpCode: code }),
+
+      updateOtpDigit: (index, value) => {
+        const newCode = [...get().otpCode];
+        newCode[index] = value;
+        set({ otpCode: newCode });
+      },
+
+      clearOtpCode: () => set({ otpCode: ["", "", "", "", "", ""] }),
+
+      setRequestId: (id) => set({ requestId: id }),
+
+      setSendingOTP: (loading) => set({ isSendingOTP: loading }),
+
+      setVerifyingOTP: (loading) => set({ isVerifyingOTP: loading }),
+
+      setTimeLeft: (time) => set({ timeLeft: time }),
+
+      setCanResend: (can) => set({ canResend: can }),
+
+      reset: () =>
+        set({
+          phoneNumber: "",
+          countryCode: "+90",
+          otpCode: ["", "", "", "", "", ""],
+          requestId: "",
+          isSendingOTP: false,
+          isVerifyingOTP: false,
+          timeLeft: 300,
+          canResend: false,
+        }),
+    }),
+    {
+      name: "otp-storage",
+      storage: createJSONStorage(() => AsyncStorage),
+      // Only persist certain fields to avoid storing loading states
+      partialize: (state) => ({
+        phoneNumber: state.phoneNumber,
+        countryCode: state.countryCode,
+        requestId: state.requestId,
+        timeLeft: state.timeLeft,
+        canResend: state.canResend,
+      }),
+    }
+  )
+);
