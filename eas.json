@@ -1,0 +1,29 @@
+{
+  "cli": {
+    "version": ">= 16.19.3",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "gradleCommand": ":app:bundleRelease",
+        "env": {
+          "GRADLE_OPTS": "-Dorg.gradle.jvmargs='-Xmx2048m'",
+          "ANDROID_HOME": "/opt/homebrew/share/android-commandlinetools",
+          "JAVA_HOME": "/opt/homebrew/opt/openjdk@17"
+        }
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

@@ -10,9 +10,7 @@ export async function sendOTP(
   phoneNumber: string
 ): Promise<VerifyRequestResponse> {
   try {
-    await sleep(1000);
-
-   /*  const requestData = {
+    const requestData = {
       api_key: VONAGE_CONFIG.API_KEY,
       api_secret: VONAGE_CONFIG.API_SECRET,
       number: phoneNumber,
@@ -29,13 +27,10 @@ export async function sendOTP(
           "Content-Type": "application/json",
         },
       }
-    ); */
+    );
 
     console.log("OTP started:");
-    return {
-      request_id: "1234567890",
-      status: "0",
-    };
+    return response.data;
   } catch (err: any) {
     console.error("Error sending OTP:", err.response?.data || err.message);
     throw err;
@@ -47,8 +42,6 @@ export async function verifyOTP(
   code: string
 ): Promise<VerifyCheckResponse> {
   try {
-    await sleep(1000);
-
     const requestData = {
       api_key: VONAGE_CONFIG.API_KEY,
       api_secret: VONAGE_CONFIG.API_SECRET,
@@ -56,20 +49,18 @@ export async function verifyOTP(
       code: code,
     };
 
-   /*  const response = await axios.post(
+    const response = await axios.post(
       "https://api.nexmo.com/verify/check/json",
       requestData,
       {
         headers: {
-          "Content-Type": "applicatiron/json",
+          "Content-Type": "application/json",
         },
       }
-    ); */
+    );
 
     console.log("OTP verification result:");
-    return {
-      status: "0",
-    };
+    return response.data;
   } catch (err: any) {
     console.error("Error verifying OTP:", err.response?.data || err.message);
     throw err;

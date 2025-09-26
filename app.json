@@ -21,7 +21,8 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.otptask"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -31,6 +32,12 @@
         "projectId": "62ccb81f-e546-4d2c-b099-d5c9deaebf67"
       }
     },
-    "owner": "deniden"
+    "owner": "deniden",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/62ccb81f-e546-4d2c-b099-d5c9deaebf67"
+    }
   }
 }

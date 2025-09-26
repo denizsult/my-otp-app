@@ -40,41 +40,45 @@ export const useOTPVerification = () => {
 
     setVerifyingOTP(true);
 
-    verifyOTP(requestId, code)
-      .then((result) => {
-        if (result.status === "0") {
-          onSuccess();
-        } else {
-          clearOtpCode();
-          inputRefs.current[0]?.focus();
-        }
-      })
-      .catch((err: any) => {
-        clearOtpCode();
+    try {
+      const result = await verifyOTP(requestId, code);
+
+      if (result.status === "0") {
+        onSuccess();
+      } else {
+        toast.error(
+          "Verification Failed",
+          result.error_text || "Invalid OTP code. Please try again."
+        );
         inputRefs.current[0]?.focus();
-      })
-      .finally(() => {
-        setVerifyingOTP(false);
-      });
+      }
+    } catch (err: any) {
+      toast.error(
+        "Verification Failed",
+        err.response?.data?.error_text || err.message
+      );
+      inputRefs.current[0]?.focus();
+    } finally {
+      setVerifyingOTP(false);
+    }
   };
 
   const handleResendCode = async () => {
     setSendingOTP(true);
-    sendOTP(phoneNumber)
-      .then((result) => {
-        if (result.status === "0") {
-          setTimeLeft(300);
-          setCanResend(false);
-          clearOtpCode();
-          inputRefs.current[0]?.focus();
-        }
-      })
-      .catch((err: any) => {
-        console.error("OTP Resend Error:", err);
-      })
-      .finally(() => {
-        setSendingOTP(false);
-      });
+    try {
+      const result = await sendOTP(phoneNumber);
+
+      if (result.status === "0") {
+        setTimeLeft(300);
+        setCanResend(false);
+        clearOtpCode();
+        inputRefs.current[0]?.focus();
+      }
+    } catch (err: any) {
+      console.error("OTP Resend Error:", err);
+    } finally {
+      setSendingOTP(false);
+    }
   };
 
   // Timer countdown
