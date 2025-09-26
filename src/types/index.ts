@@ -70,3 +70,14 @@ export interface ToastStore {
   hideToast: (id: string) => void;
   clearAllToasts: () => void;
 }
+
+/* API Configuration */
+export interface ApiConfigState {
+  apiKey: string;
+  apiSecret: string;
+  isConfigured: boolean;
+  setApiKey: (key: string) => void;
+  setApiSecret: (secret: string) => void;
+  setConfigured: (configured: boolean) => void;
+  reset: () => void;
+}

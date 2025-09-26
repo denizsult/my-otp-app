@@ -6,20 +6,23 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "env": {
+          "GRADLE_OPTS": "-Dorg.gradle.jvmargs='-Xmx4096m -XX:MaxMetaspaceSize=512m'"
+        }
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
       "autoIncrement": true,
       "android": {
-        "gradleCommand": ":app:bundleRelease",
-        "env": {
-          "GRADLE_OPTS": "-Dorg.gradle.jvmargs='-Xmx2048m'",
-          "ANDROID_HOME": "/opt/homebrew/share/android-commandlinetools",
-          "JAVA_HOME": "/opt/homebrew/opt/openjdk@17"
-        }
+        "buildType": "app-bundle"
       }
     }
   },

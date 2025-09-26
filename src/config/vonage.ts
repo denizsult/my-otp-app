@@ -1,6 +1,6 @@
  export const VONAGE_CONFIG = {
-  API_KEY: process.env.EXPO_PUBLIC_VONAGE_API_KEY || "fd9e816e",
-  API_SECRET: process.env.EXPO_PUBLIC_VONAGE_API_SECRET || "8(TF7Q9wxv3%l",
+  API_KEY: process.env.EXPO_PUBLIC_VONAGE_API_KEY,
+  API_SECRET: process.env.EXPO_PUBLIC_VONAGE_API_SECRET,
 
   BRAND_NAME: "Transform Credit",
 

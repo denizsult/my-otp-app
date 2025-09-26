@@ -33,9 +33,7 @@
       }
     },
     "owner": "deniden",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.0",
     "updates": {
       "url": "https://u.expo.dev/62ccb81f-e546-4d2c-b099-d5c9deaebf67"
     }

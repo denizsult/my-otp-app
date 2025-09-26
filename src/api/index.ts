@@ -1,6 +1,7 @@
 import axios from "axios";
 import { VONAGE_CONFIG } from "../config/vonage";
 import { VerifyCheckResponse, VerifyRequestResponse } from "../types";
+import { useApiConfigStore } from "../stores/apiConfigStore";
 
 async function sleep(ms: number = 1000) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -10,9 +11,15 @@ export async function sendOTP(
   phoneNumber: string
 ): Promise<VerifyRequestResponse> {
   try {
+    const { apiKey, apiSecret } = useApiConfigStore.getState();
+    
+    if (!apiKey || !apiSecret) {
+      throw new Error("API credentials not configured. Please set up your API key and secret.");
+    }
+
     const requestData = {
-      api_key: VONAGE_CONFIG.API_KEY,
-      api_secret: VONAGE_CONFIG.API_SECRET,
+      api_key: apiKey,
+      api_secret: apiSecret,
       number: phoneNumber,
       brand: VONAGE_CONFIG.BRAND_NAME,
       code_length: VONAGE_CONFIG.CODE_LENGTH,
@@ -42,9 +49,15 @@ export async function verifyOTP(
   code: string
 ): Promise<VerifyCheckResponse> {
   try {
+    const { apiKey, apiSecret } = useApiConfigStore.getState();
+    
+    if (!apiKey || !apiSecret) {
+      throw new Error("API credentials not configured. Please set up your API key and secret.");
+    }
+
     const requestData = {
-      api_key: VONAGE_CONFIG.API_KEY,
-      api_secret: VONAGE_CONFIG.API_SECRET,
+      api_key: apiKey,
+      api_secret: apiSecret,
       request_id: requestId,
       code: code,
     };

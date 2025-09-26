@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 import { useOTPStore } from "../stores/otpStore";
+import { useApiConfigStore } from "../stores/apiConfigStore";
 
 import PhoneInput from "../components/PhoneInput";
 import { Box } from "@/components/ui/box";
@@ -19,6 +20,7 @@ import { RenderIf } from "../components/RenderIf";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { sendOTP } from "../api";
 import { ErrorCode } from "../types";
+import { SettingsIcon } from "lucide-react-native";
 
 type PhoneScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -86,8 +88,22 @@ export default function PhoneScreen() {
     }
   };
 
+
   return (
     <Box className="flex-1 bg-background-0 justify-center p-6">
+      {/* Settings Button */}
+      <Box className="absolute top-12 right-6 z-10">
+        <Button
+          size="sm"
+          variant="outline"
+          action="secondary"
+          onPress={() => navigation.navigate("ApiConfig")}
+          className="!bg-white !border-gray-300"
+        >
+          <SettingsIcon size={20} color="#666" />
+        </Button>
+      </Box>
+      
       <Center>
         <Card
           className="max-w-96 w-full bg-white rounded-xl shadow-lg p-6"

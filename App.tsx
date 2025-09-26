@@ -27,7 +27,6 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  
   return (
     <GluestackUIProvider>
       <RenderIf
