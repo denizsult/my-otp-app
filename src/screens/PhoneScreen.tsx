@@ -25,7 +25,6 @@ type PhoneScreenNavigationProp = StackNavigationProp<
   "Phone"
 >;
 
-
 const ERROR_MESSAGES: Record<ErrorCode, string> = {
   "10": "This phone number has already been used recently. Please wait before requesting another code.",
   "15": "Verification code was already sent to this number. Please check your messages or wait before requesting another.",
@@ -34,8 +33,12 @@ const ERROR_MESSAGES: Record<ErrorCode, string> = {
 };
 
 const getErrorMessage = (status: string, fallbackMessage?: string): string => {
-  return ERROR_MESSAGES[status as ErrorCode] || fallbackMessage || "Failed to send verification code";
-};  
+  return (
+    ERROR_MESSAGES[status as ErrorCode] ||
+    fallbackMessage ||
+    "Failed to send verification code"
+  );
+};
 
 export default function PhoneScreen() {
   const navigation = useNavigation<PhoneScreenNavigationProp>();
@@ -62,15 +65,18 @@ export default function PhoneScreen() {
         setRequestId(result.request_id);
         setTimeLeft(300);
         setCanResend(false);
-          navigation.navigate("OTP");
-        toast.success("Code Sent", "A new verification code has been sent to your phone.");
+        navigation.navigate("OTP");
+        toast.success(
+          "Code Sent",
+          "A new verification code has been sent to your phone."
+        );
       } else {
         const errorMessage = getErrorMessage(result.status, result.error_text);
         toast.error("Error", errorMessage);
       }
     } catch (err: any) {
       const errorStatus = err.response?.data?.status;
-      const errorMessage = errorStatus 
+      const errorMessage = errorStatus
         ? getErrorMessage(errorStatus, err.message)
         : err.message || "Network error. Please try again.";
 
@@ -133,15 +139,6 @@ export default function PhoneScreen() {
                   </HStack>
                 </RenderIf>
               </Button>
-
-              <VStack space="xs" className="items-center">
-                <Text className="text-typography-500 text-xs text-center">
-                  By continuing, you agree to receive SMS messages
-                </Text>
-                <Text className="text-typography-400 text-xs text-center">
-                  Standard message and data rates may apply
-                </Text>
-              </VStack>
             </VStack>
           </VStack>
         </Card>
