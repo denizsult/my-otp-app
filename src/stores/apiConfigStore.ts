@@ -1,16 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-export interface ApiConfigState {
-  apiKey: string;
-  apiSecret: string;
-  isConfigured: boolean;
-  setApiKey: (key: string) => void;
-  setApiSecret: (secret: string) => void;
-  setConfigured: (configured: boolean) => void;
-  reset: () => void;
-}
+import { ApiConfigState } from "../types";
 
 export const useApiConfigStore = create<ApiConfigState>()(
   persist(
