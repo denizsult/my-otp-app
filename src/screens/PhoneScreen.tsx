@@ -47,6 +47,8 @@ export default function PhoneScreen() {
     getFullPhoneNumber,
     setSendingOTP,
     setRequestId,
+    setTimeLeft,
+    setCanResend,
   } = useOTPStore();
 
   const handleSendCode = async () => {
@@ -58,7 +60,9 @@ export default function PhoneScreen() {
 
       if (result.status === "0") {
         setRequestId(result.request_id);
-        navigation.navigate("OTP");
+        setTimeLeft(300);
+        setCanResend(false);
+          navigation.navigate("OTP");
         toast.success("Code Sent", "A new verification code has been sent to your phone.");
       } else {
         const errorMessage = getErrorMessage(result.status, result.error_text);

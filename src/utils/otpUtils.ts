@@ -6,11 +6,9 @@ export const handleOtpChange = (
   setOtpCode: (code: string[]) => void,
   inputRefs: React.MutableRefObject<(any | null)[]>
 ) => {
-  // Handle auto-fill (paste) - when multiple digits are entered at once
   if (value.length > 1) {
-    const digits = value.replace(/\D/g, "").split("").slice(0, 6); // Extract only digits, max 6
+    const digits = value.replace(/\D/g, "").split("").slice(0, 6);
 
-    // Create new OTP array with all digits filled at once
     const newOtpCode = [...otpCode];
     for (let i = 0; i < digits.length && index + i < 6; i++) {
       newOtpCode[index + i] = digits[i];

@@ -44,7 +44,7 @@ export default function SuccessScreen() {
             <VStack space="lg">
               <VStack space="md">
                 <Button
-                  className="bg-secondary-500 border-secondary-500 text-white"
+                  className="bg-secondary-500 border-secondary-500 text-typography-0"
                   size="lg"
                   action="positive"
                   variant="solid"
@@ -53,7 +53,7 @@ export default function SuccessScreen() {
                     navigation.navigate('Phone');
                   }}
                 >
-                  <ButtonText>Verify Another Number</ButtonText>
+                  <ButtonText className="text-black">Verify Another Number</ButtonText>
                 </Button>
               </VStack>
             </VStack>
